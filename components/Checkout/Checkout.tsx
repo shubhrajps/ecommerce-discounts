@@ -1,6 +1,6 @@
 // /components/Checkout/Checkout.tsx
 
-import React, { useState } from 'react';
+import React, { useEffect, useState } from 'react';
 import { useCart } from '../Context/CartContext';
 import { CartItem } from '@/utils/types';
 
@@ -8,29 +8,60 @@ const Checkout: React.FC = () => {
   const { cartItems } = useCart();
   const [discountCode, setDiscountCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
-  
+  const [validDiscountCode, setValidDiscountCode] = useState<string | null>(null);
+
   const total = cartItems.reduce((sum: number, item: CartItem) => sum + item.item.price * item.quantity, 0);
   const tax = (total - discountAmount) * 0.1;
   const finalTotal = total - discountAmount + tax;
 
   const handleApplyDiscount = () => {
-    if (discountCode === 'SAVE10') {
-      setDiscountAmount(total * 0.1);
+    if (discountCode === validDiscountCode) {
+      setDiscountAmount(total * 0.15);
+      
     } else {
       alert('Invalid discount code');
     }
   };
 
   const handlePlaceOrder = () => {
+    // Logic to place the order
     alert('Order placed successfully!');
   };
 
   const handleCancelOrder = () => {
+    // Logic to cancel the order
     alert('Order cancelled');
   };
 
+  // Fetch the discount code when the component mounts
+  useEffect(() => {
+    const fetchDiscountCode = async () => {
+      try {
+        const response = await fetch('/api/admin/generate-discount', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify({ orderId: '1' }), // Replace with actual order ID logic
+        });
+
+        if (response.ok) {
+          const data = await response.json();
+          setValidDiscountCode(data.discountCode); 
+          setDiscountCode(data.discountCode);
+        } else {
+          console.error('No discount code generated');
+        }
+      } catch (error) {
+        console.error('Error fetching discount code:', error);
+      }
+    };
+
+    fetchDiscountCode();
+  }, []);
+
   return (
-    <div className="flex flex-col md:flex-row p-6 m-8 bg-white shadow-lg rounded-lg">
+    <div className="flex flex-col md:flex-row p-6 bg-white shadow-lg rounded-lg">
       {/* Left Side: Items and Quantity Breakdown */}
       <div className="w-full md:w-2/3 pr-4">
         <h2 className="text-2xl font-bold mb-4">Checkout</h2>
@@ -72,22 +103,26 @@ const Checkout: React.FC = () => {
           <span>Tax (10%):</span>
           <span>${tax.toFixed(2)}</span>
         </div>
+        {discountAmount>0 && <div className="flex justify-between font-bold mb-2">
+          <span>Discount:</span>
+          <span>${discountAmount.toFixed(2)}</span>
+        </div>}
         <div className="flex justify-between font-bold mb-4">
           <span>Total:</span>
           <span>${finalTotal.toFixed(2)}</span>
         </div>
         <div className="flex justify-between">
           <button
-            onClick={handlePlaceOrder}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
-          >
-            Pay Now
-          </button>
-          <button
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
             onClick={handleCancelOrder}
           >
             Cancel Order
+          </button>
+          <button
+            onClick={handlePlaceOrder}
+            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+          >
+            Pay Now
           </button>
         </div>
       </div>

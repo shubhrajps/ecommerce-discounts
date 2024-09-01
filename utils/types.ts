@@ -10,3 +10,11 @@ export type CartItem = {
     item: Item;
     quantity: number;
 };
+
+export type Order = {
+    id: string;
+    items: CartItem[];
+    totalPrice: number;
+    discount: number;
+    taxes: number;
+}
