@@ -3,6 +3,7 @@
 import React, { useEffect, useState } from 'react';
 import { useCart } from '../Context/CartContext';
 import { CartItem } from '@/utils/types';
+import OrderModal from './OrderModal';
 
 const Checkout: React.FC = () => {
   const { cartItems } = useCart();
@@ -14,18 +15,54 @@ const Checkout: React.FC = () => {
   const tax = (total - discountAmount) * 0.1;
   const finalTotal = total - discountAmount + tax;
 
+  const [orderId, setOrderId] = useState<string | null>(null);
+  const [orderDetails, setOrderDetails] = useState<any>(null);
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   const handleApplyDiscount = () => {
     if (discountCode === validDiscountCode) {
       setDiscountAmount(total * 0.15);
       
     } else {
       alert('Invalid discount code');
+      setDiscountAmount(0);
     }
   };
 
-  const handlePlaceOrder = () => {
-    // Logic to place the order
-    alert('Order placed successfully!');
+  const handlePlaceOrder = async () => {
+    const orderData = {
+      items: cartItems.map(item => ({
+        id: item.item.id,
+        name: item.item.name,
+        price: item.item.price,
+        quantity: item.quantity,
+      })),
+      discount: discountAmount,
+      taxes: tax,
+      finalAmount: finalTotal,
+    };
+
+    try {
+      const response = await fetch('/api/create-order', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(orderData),
+      });
+
+      if (response.ok) {
+        const data = await response.json();
+        setOrderId(data.orderId);
+        setOrderDetails(orderData); // Store order details for the modal
+        setIsModalOpen(true); // Open the modal
+      } else {
+        alert('Error placing order');
+      }
+    } catch (error) {
+      console.error('Error:', error);
+      alert('Error placing order');
+    }
   };
 
   const handleCancelOrder = () => {
@@ -116,7 +153,7 @@ const Checkout: React.FC = () => {
             className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
             onClick={handleCancelOrder}
           >
-            Cancel Order
+            Cancel
           </button>
           <button
             onClick={handlePlaceOrder}
@@ -126,6 +163,12 @@ const Checkout: React.FC = () => {
           </button>
         </div>
       </div>
+      <OrderModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        orderId={orderId || ''}
+        orderDetails={orderDetails}
+      />
     </div>
   );
 };

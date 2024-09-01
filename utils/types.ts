@@ -18,3 +18,17 @@ export type Order = {
     discount: number;
     taxes: number;
 }
+
+export type OrderItem = {
+    id: string;
+    name: string;
+    price: number;
+    quantity: number;
+}
+  
+export type OrderData = {
+    items: OrderItem[];
+    discount: number;
+    taxes: number;
+    finalAmount: number;
+}
