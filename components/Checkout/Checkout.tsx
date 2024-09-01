@@ -4,6 +4,7 @@ import React, { useEffect, useState } from 'react';
 import { useCart } from '../Context/CartContext';
 import { CartItem } from '@/utils/types';
 import OrderModal from './OrderModal';
+import { motion } from 'framer-motion';
 
 const Checkout: React.FC = () => {
   const { cartItems } = useCart();
@@ -22,7 +23,6 @@ const Checkout: React.FC = () => {
   const handleApplyDiscount = () => {
     if (discountCode === validDiscountCode) {
       setDiscountAmount(total * 0.15);
-      
     } else {
       alert('Invalid discount code');
       setDiscountAmount(0);
@@ -92,16 +92,29 @@ const Checkout: React.FC = () => {
   }, []);
 
   return (
-    <div className="flex flex-col md:flex-row p-6 bg-white shadow-lg rounded-lg">
+    <motion.div 
+      className="flex flex-col md:flex-row p-6 bg-white shadow-lg rounded-lg m-48"
+      initial={{ opacity: 0, y: 20 }} // Initial state
+      animate={{ opacity: 1, y: 0 }} // Animate to this state
+      exit={{ opacity: 0, y: 20 }} // Exit state
+      transition={{ duration: 0.3 }} // Transition duration
+    >
       {/* Left Side: Items and Quantity Breakdown */}
       <div className="w-full md:w-2/3 pr-4">
         <h2 className="text-2xl font-bold mb-4">Checkout</h2>
         {cartItems.map(item => (
-          <div key={item.item.id} className="flex justify-between items-center mb-2 border-b pb-2">
+          <motion.div 
+            key={item.item.id} 
+            className="flex justify-between items-center mb-2 border-b pb-2"
+            initial={{ opacity: 0 }} // Initial state for each item
+            animate={{ opacity: 1 }} // Animate to this state
+            exit={{ opacity: 0 }} // Exit state
+            transition={{ duration: 0.2 }} // Transition duration for items
+          >
             <span className="font-semibold">{item.item.name}</span>
             <span className="text-gray-600">${item.item.price.toFixed(2)} x {item.quantity}</span>
             <span className="text-gray-800 font-bold">${(item.item.price * item.quantity).toFixed(2)}</span>
-          </div>
+          </motion.div>
         ))}
         <div className="flex justify-between font-bold mt-4">
           <span>Subtotal:</span>
@@ -134,10 +147,12 @@ const Checkout: React.FC = () => {
           <span>Tax (10%):</span>
           <span>${tax.toFixed(2)}</span>
         </div>
-        {discountAmount>0 && <div className="flex justify-between font-bold mb-2">
-          <span>Discount:</span>
-          <span>${discountAmount.toFixed(2)}</span>
-        </div>}
+        {discountAmount > 0 && (
+          <div className="flex justify-between font-bold mb-2">
+            <span>Discount:</span>
+            <span>${discountAmount.toFixed(2)}</span>
+          </div>
+        )}
         <div className="flex justify-between font-bold mb-4">
           <span>Total:</span>
           <span>${finalTotal.toFixed(2)}</span>
@@ -157,7 +172,7 @@ const Checkout: React.FC = () => {
         orderId={orderId || ''}
         orderDetails={orderDetails}
       />
-    </div>
+    </motion.div>
   );
 };
 

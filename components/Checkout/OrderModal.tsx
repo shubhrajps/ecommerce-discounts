@@ -1,6 +1,7 @@
 // /components/OrderModal.tsx
 
 import React from 'react';
+import { motion } from 'framer-motion';
 
 interface OrderModalProps {
   isOpen: boolean;
@@ -19,7 +20,13 @@ const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderId, order
 
   return (
     <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50">
-      <div className="bg-white p-6 rounded w-1/2 shadow-lg">
+      <motion.div 
+        className="bg-white p-6 rounded w-1/2 shadow-lg"
+        initial={{ opacity: 0, scale: 0.8 }} // Initial state
+        animate={{ opacity: 1, scale: 1 }} // Animate to this state
+        exit={{ opacity: 0, scale: 0.8 }} // Exit state
+        transition={{ duration: 0.3 }} // Transition duration
+      >
         <h2 className="text-xl font-bold mb-4">Order successfully placed</h2>
         <p className="mb-2 font-semibold">Order ID: {orderId}</p>
         <h3 className="font-semibold mb-2">Items:</h3>
@@ -39,7 +46,7 @@ const OrderModal: React.FC<OrderModalProps> = ({ isOpen, onClose, orderId, order
             Close
           </button>
         </div>
-      </div>
+      </motion.div>
     </div>
   );
 };
