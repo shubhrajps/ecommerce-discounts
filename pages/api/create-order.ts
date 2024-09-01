@@ -1,21 +1,28 @@
-// pages/api/create-order.ts
-
 import { OrderData } from '@/utils/types';
 import { NextApiRequest, NextApiResponse } from 'next';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
-let orders: { [key: string]: OrderData } = {}; // In-memory storage for orders
+const dbFilePath = './database/orders.db'; // Path to your SQLite database file
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+async function openDb() {
+  return open({
+    filename: dbFilePath,
+    driver: sqlite3.Database,
+  });
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
+  const db = await openDb();
+
   if (req.method === 'POST') {
     const { items, discount, taxes, finalAmount }: OrderData = req.body;
 
-    // Generate a unique order ID
-    const orderId = `ORDER-${Object.keys(orders).length + 1}`;
+    // Insert the order data into the database
+    const result = await db.run('INSERT INTO orders (items, discount, taxes, finalAmount) VALUES (?, ?, ?, ?)', 
+      [JSON.stringify(items), discount, taxes, finalAmount]);
 
-    // Save the order data
-    orders[orderId] = { items, discount, taxes, finalAmount };
-
-    return res.status(200).json({ orderId });
+    return res.status(200).json({ orderId: result.lastID }); // Return the ID of the newly created order
   }
 
   return res.status(405).json({ message: 'Method not allowed' });
