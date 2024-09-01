@@ -65,12 +65,6 @@ const Checkout: React.FC = () => {
     }
   };
 
-  const handleCancelOrder = () => {
-    // Logic to cancel the order
-    alert('Order cancelled');
-  };
-
-  // Fetch the discount code when the component mounts
   useEffect(() => {
     const fetchDiscountCode = async () => {
       try {
@@ -79,7 +73,7 @@ const Checkout: React.FC = () => {
           headers: {
             'Content-Type': 'application/json',
           },
-          body: JSON.stringify({ orderId: '1' }), // Replace with actual order ID logic
+          body: JSON.stringify({ orderId: '1' }),
         });
 
         if (response.ok) {
@@ -148,16 +142,10 @@ const Checkout: React.FC = () => {
           <span>Total:</span>
           <span>${finalTotal.toFixed(2)}</span>
         </div>
-        <div className="flex justify-between">
-          <button
-            className="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600"
-            onClick={handleCancelOrder}
-          >
-            Cancel
-          </button>
+        <div className="flex justify-end">
           <button
             onClick={handlePlaceOrder}
-            className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600"
+            className="bg-green-500 text-white px-8 py-2 rounded hover:bg-green-600"
           >
             Pay Now
           </button>

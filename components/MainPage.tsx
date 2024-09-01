@@ -15,7 +15,7 @@ const MainPage = () => {
 
   return (
     <div>
-      <Header onViewCart={() => setShowCart(true)} />
+      <Header onViewCart={() => setShowCart(true)} goToHome={()=>{ setShowCheckout(false); setShowCart(false); }} />
       {!showCheckout?<>
         <div className="grid grid-cols-6 gap-4 justify-items-center my-8 space-y-4">
           {items.map(item => (
