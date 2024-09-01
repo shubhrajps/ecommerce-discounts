@@ -5,7 +5,7 @@ import path from 'path';
 const dbFilePath = path.join(process.cwd(), 'database', 'orders.db');
 
 async function createDatabase() {
-  const db = await openDb({ // Use the renamed import here
+  const db = await openDb({ 
     filename: dbFilePath,
     driver: sqlite3.Database,
   });

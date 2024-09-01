@@ -6,7 +6,7 @@ import { CartItem } from '@/utils/types';
 import OrderModal from './OrderModal';
 import { motion } from 'framer-motion';
 
-const Checkout: React.FC = () => {
+const Checkout: React.FC<{ onClose: Function }> = ({ onClose }) => {
   const { cartItems } = useCart();
   const [discountCode, setDiscountCode] = useState('');
   const [discountAmount, setDiscountAmount] = useState(0);
@@ -91,6 +91,11 @@ const Checkout: React.FC = () => {
     fetchDiscountCode();
   }, []);
 
+  const handleModalClose = () => {
+    setIsModalOpen(false);
+    onClose();
+  };
+
   return (
     <motion.div 
       className="flex flex-col md:flex-row p-6 bg-white shadow-lg rounded-lg m-48"
@@ -168,7 +173,7 @@ const Checkout: React.FC = () => {
       </div>
       <OrderModal
         isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onClose={handleModalClose}
         orderId={orderId || ''}
         orderDetails={orderDetails}
       />

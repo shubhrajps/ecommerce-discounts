@@ -14,7 +14,13 @@ const MainPage = () => {
   const [showCart, setShowCart] = useState(false);
   const [showCheckout, setShowCheckout] = useState(false);
 
-  const { cartItems } = useCart();
+  const { cartItems, clearCart } = useCart();
+
+  const handleNewOrder = () => {
+    clearCart();
+    setShowCart(false);
+    setShowCheckout(false);
+  };
 
   return (
     <div>
@@ -66,7 +72,7 @@ const MainPage = () => {
               exit={{ opacity: 0, x: -300 }} 
               transition={{ duration: 0.3 }} 
             >
-              <Checkout />
+              <Checkout onClose={handleNewOrder} />
             </motion.div>
           )}
         </>
