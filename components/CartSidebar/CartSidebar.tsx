@@ -4,7 +4,7 @@ import React from 'react';
 import { CartItem } from '@/utils/types';
 import { useCart } from '../Context/CartContext';
 
-const CartSidebar: React.FC<{ onClose: Function }> = ({ onClose }) => {
+const CartSidebar: React.FC<{ onClose: Function, onCheckout: Function }> = ({ onClose, onCheckout }) => {
   const { cartItems, updateQuantity, removeFromCart } = useCart();
 
   return (
@@ -55,7 +55,7 @@ const CartSidebar: React.FC<{ onClose: Function }> = ({ onClose }) => {
         >
           Close
         </button>
-        <button className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+        <button onClick={()=> onCheckout()} className="bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
           Checkout
         </button>
       </div>
