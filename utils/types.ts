@@ -6,7 +6,7 @@ export type Item = {
 };
 
 export type CartItem = {
-    id: number;
+    id: string;
     item: Item;
     quantity: number;
 };
