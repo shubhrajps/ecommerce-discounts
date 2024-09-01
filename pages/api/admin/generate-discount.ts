@@ -1,18 +1,41 @@
 import { NextApiRequest, NextApiResponse } from 'next';
+import sqlite3 from 'sqlite3';
+import { open } from 'sqlite';
 
-let discountCodes: string[] = [];
+const dbFilePath = './database/orders.db'; // Path to your SQLite database file
 
-export default function handler(req: NextApiRequest, res: NextApiResponse) {
+async function openDb() {
+  return open({
+    filename: dbFilePath,
+    driver: sqlite3.Database,
+  });
+}
+
+export default async function handler(req: NextApiRequest, res: NextApiResponse) {
   if (req.method === 'POST') {
     const { orderId } = req.body;
-    // Generate a discount code for every nth order (e.g., every 5th order)
-    if (orderId && (discountCodes.length + 1) % 2 === 1) {
-      const discountCode = `NEUDISC${discountCodes.length + 1}`;
-      discountCodes.push(discountCode);
-      return res.status(200).json({ success: true, discountCode });
+
+    if (!orderId) {
+      return res.status(400).json({ success: false, message: 'Order ID is required' });
     }
 
-    return res.status(400).json({ success: false, message: 'No discount code generated' });
+    try {
+      const db = await openDb();
+      const totalOrders = await db.get('SELECT COUNT(*) as count FROM orders'); // Get the total number of orders
+      const orderCount = totalOrders.count;
+
+      // Generate a discount code for every 3rd order
+      if (orderCount % 3 === 0) {
+        const discountCode = `NEUDISC${orderCount}`;
+        // Optionally, you can save the discount code to a database or a file if needed
+        return res.status(200).json({ success: true, discountCode });
+      }
+
+      return res.status(400).json({ success: false, message: 'No discount code generated' });
+    } catch (error) {
+      console.error('Error fetching order count:', error);
+      return res.status(500).json({ success: false, message: 'Internal Server Error' });
+    }
   }
 
   return res.status(405).json({ success: false, message: 'Method not allowed' });
